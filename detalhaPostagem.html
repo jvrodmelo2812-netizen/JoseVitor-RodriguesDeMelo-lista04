@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>buscaCEP</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      padding: 20px;
+      color: #000;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 8px;
+      background-color: #f0f0f0;
+      border: 1px solid #999;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background-color: #e4e4e4;
+    }
+    #resultado {
+      margin-top: 20px;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+    .erro {
+      color: #b00020;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>buscaCEP</h1>
+
+  <input type="text" id="cep" placeholder="Digite o CEP (ex: 01001000)">
+  <button onclick="buscarEndereco()">Buscar Endereço</button>
+
+  <div id="resultado"></div>
+
+  <script>
+    async function buscarEndereco() {
+      const cepInput = document.getElementById('cep').value;
+      const resultadoDiv = document.getElementById('resultado');
+      const cepLimpo = cepInput.replace(/\D/g, '');
+
+      resultadoDiv.innerHTML = '';
+
+      if (cepLimpo.length !== 8) {
+        resultadoDiv.innerHTML = '<p class="erro">Erro ao buscar endereço.</p>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://viacep.com.br{cepLimpo}/json/`);
+
+        if (!response.ok) {
+          throw new Error('Erro na requisição');
+        }
+
+        const dados = await response.json();
+
+        if (dados.erro) {
+          resultadoDiv.innerHTML = '<p class="erro">Erro ao buscar endereço.</p>';
+          return;
+        }
+
+        resultadoDiv.innerHTML = `
+          <div>Logradouro: ${dados.logradouro}</div>
+          <div>Bairro: ${dados.bairro}</div>
+          <div>Cidade: ${dados.localidade}</div>
+          <div>Estado: ${dados.uf}</div>
+        `;
+      } catch (error) {
+        resultadoDiv.innerHTML = '<p class="erro">Erro ao buscar endereço.</p>';
+      }
+    }
+  </script>
+
+</body>
+</html>
